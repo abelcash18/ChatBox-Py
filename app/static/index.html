@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>chatbox</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #0b1220; color: #e6edf3; }
+    .wrap { max-width: 900px; margin: 0 auto; }
+    .card { background: #111b2e; border: 1px solid #22314f; border-radius: 12px; padding: 16px; }
+    .row { display: flex; gap: 12px; align-items: flex-start; }
+    textarea { width: 100%; min-height: 64px; resize: vertical; padding: 10px; border-radius: 10px; background: #0f1730; color: #e6edf3; border: 1px solid #22314f; }
+    button { padding: 10px 14px; border-radius: 10px; background: #2f81f7; color: white; border: none; cursor: pointer; font-weight: 700; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .messages { margin-top: 14px; display: grid; gap: 12px; }
+    .msg { padding: 12px; border-radius: 12px; border: 1px solid #22314f; background: #0f1730; }
+    .meta { font-size: 12px; color: #8ea2c7; margin-bottom: 6px; }
+    .reply { white-space: pre-wrap; }
+    .retrieved { margin-top: 10px; font-size: 12px; color: #9fb3da; }
+    .retrieved pre { background: #0b1220; padding: 10px; border-radius: 10px; border: 1px solid #22314f; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1 style="margin-top:0">ATS Chatbox</h1>
+
+    <div class="card">
+      <div class="row">
+        <div style="flex:1">
+          <textarea id="message" placeholder="Ask something... (e.g., What is this project?)"></textarea>
+        </div>
+        <div>
+          <button id="send">Send</button>
+        </div>
+      </div>
+
+      <div class="messages" id="messages"></div>
+    </div>
+  </div>
+
+  <script>
+    const sendBtn = document.getElementById('send');
+    const messageEl = document.getElementById('message');
+    const messagesEl = document.getElementById('messages');
+
+    function addMessage(role, content) {
+      const div = document.createElement('div');
+      div.className = 'msg';
+      div.innerHTML = `
+        <div class="meta">${role}</div>
+        <div class="reply"></div>
+      `;
+      div.querySelector('.reply').textContent = content;
+      messagesEl.appendChild(div);
+      messagesEl.scrollIntoView({behavior:'smooth', block:'end'});
+    }
+
+    function addRetrievedBlock(retrieved) {
+      const lastMsg = messagesEl.lastElementChild;
+      const block = document.createElement('div');
+      block.className = 'retrieved';
+
+      if (!retrieved || !retrieved.length) {
+        block.innerHTML = '<div>No retrieved context.</div>';
+      } else {
+        const pretty = retrieved.map(r => `- score=${r.score} source=${r.source} chunk=${r.chunk_id}\n${r.text}`).join('\n\n');
+        block.innerHTML = `<div><b>Retrieved context</b></div><pre>${pretty}</pre>`;
+      }
+      lastMsg.appendChild(block);
+    }
+
+    async function send() {
+      const msg = messageEl.value.trim();
+      if (!msg) return;
+
+      addMessage('You', msg);
+      messageEl.value = '';
+
+      sendBtn.disabled = true;
+      const placeholder = document.createElement('div');
+      placeholder.className = 'msg';
+      placeholder.innerHTML = `
+        <div class="meta">Assistant</div>
+        <div class="reply">Thinking...</div>
+      `;
+      messagesEl.appendChild(placeholder);
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({message: msg})
+        });
+        const data = await res.json();
+        placeholder.querySelector('.reply').textContent = data.reply || '';
+        addRetrievedBlock(data.retrieved);
+      } catch (e) {
+        placeholder.querySelector('.reply').textContent = 'Request failed.';
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    sendBtn.addEventListener('click', send);
+    messageEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        send();
+      }
+    });
+  </script>
+</body>
+</html>
+
