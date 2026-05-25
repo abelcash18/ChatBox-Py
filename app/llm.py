@@ -13,6 +13,7 @@ def generate_reply(*, user_message: str, retrieved_chunks: List[Dict[str, str]])
     """
 
     api_key = os.getenv("OPENAI_API_KEY")
+    print(f"DEBUG: OPENAI_API_KEY is set: {bool(api_key)}")  # Debug line
     if api_key:
         # Optional OpenAI integration. Kept minimal to avoid forcing a dependency.
         try:
@@ -35,8 +36,9 @@ def generate_reply(*, user_message: str, retrieved_chunks: List[Dict[str, str]])
                 temperature=0.2,
             )
             return resp.choices[0].message.content.strip()
-        except Exception:
+        except Exception as e:
             # Fall back to mock if anything fails
+            print(f"DEBUG: OpenAI API error: {type(e).__name__}: {str(e)}")
             pass
 
     # Mock response: concise and grounded in retrieved chunks

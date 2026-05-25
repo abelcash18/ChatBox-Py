@@ -11,10 +11,9 @@ from app.rag import RagEngine
 from app.llm import generate_reply
 
 # Load environment variables from .env file
-load_dotenv()
-
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(dotenv_path=BASE_DIR / ".env")
+
 DATA_DIR = BASE_DIR / "data"
 
 app = FastAPI(title="chatbox")
