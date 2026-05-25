@@ -1,44 +1,56 @@
 from __future__ import annotations
 
 import os
+import requests
 from typing import List, Dict
 
 
 def generate_reply(*, user_message: str, retrieved_chunks: List[Dict[str, str]]) -> str:
     """Generate a reply using either:
-    - OpenAI (if OPENAI_API_KEY is set)
+    - Serper API for web search (if SERPER_API_KEY is set)
     - Local mock (default)
 
     To keep this project runnable anywhere, the default is a deterministic mock.
     """
 
-    api_key = os.getenv("OPENAI_API_KEY")
-    print(f"DEBUG: OPENAI_API_KEY is set: {bool(api_key)}")  # Debug line
+    api_key = os.getenv("SERPER_API_KEY")
+    print(f"DEBUG: SERPER_API_KEY is set: {bool(api_key)}")  # Debug line
     if api_key:
-        # Optional OpenAI integration. Kept minimal to avoid forcing a dependency.
+        # Optional Serper API integration for web search
         try:
-            from openai import OpenAI  # type: ignore
-
-            client = OpenAI(api_key=api_key)
-            context = "\n\n".join(
-                f"Source: {c.get('source')} (chunk {c.get('chunk_id')})\n{c.get('text')}" for c in retrieved_chunks
-            )
-            prompt = (
-                "You are a helpful assistant. Use the provided context to answer.\n"
-                "If the context is insufficient, say so and answer generally.\n\n"
-                f"CONTEXT:\n{context}\n\n"
-                f"USER: {user_message}\nASSISTANT:"
-            )
-
-            resp = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.2,
-            )
-            return resp.choices[0].message.content.strip()
+            url = "https://google.serper.dev/search"
+            payload = {
+                "q": user_message,
+                "num": 5
+            }
+            headers = {
+                "X-API-KEY": api_key,
+                "Content-Type": "application/json"
+            }
+            
+            response = requests.post(url, json=payload, headers=headers, timeout=30)
+            response.raise_for_status()
+            results = response.json()
+            
+            # Extract search results
+            search_results = results.get("organic", [])
+            if search_results:
+                answer = results.get("answer", "")
+                if answer:
+                    return f"(Serper) {answer}"
+                
+                # Format top results
+                formatted = "(Serper) Based on web search:\n\n"
+                for i, result in enumerate(search_results[:3], 1):
+                    title = result.get("title", "")
+                    snippet = result.get("snippet", "")
+                    formatted += f"{i}. {title}\n   {snippet}\n\n"
+                return formatted.strip()
+            else:
+                return "(Serper) No search results found."
         except Exception as e:
             # Fall back to mock if anything fails
-            print(f"DEBUG: OpenAI API error: {type(e).__name__}: {str(e)}")
+            print(f"DEBUG: Serper API error: {type(e).__name__}: {str(e)}")
             pass
 
     # Mock response: concise and grounded in retrieved chunks
