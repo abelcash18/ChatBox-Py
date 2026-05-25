@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from dotenv import load_dotenv
 from fastapi import FastAPI, Body
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.rag import RagEngine
 from app.llm import generate_reply
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
