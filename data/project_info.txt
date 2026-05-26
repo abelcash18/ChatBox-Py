@@ -1,0 +1,38 @@
+Project: ATS Chatbot
+Description: An AI-powered chatbot application with Retrieval-Augmented Generation (RAG) capabilities.
+
+Technology Stack:
+- Backend: Python FastAPI
+- Frontend: HTML5, CSS3, JavaScript
+- LLM: Integrated with language models for natural language processing
+- RAG: Document retrieval and context-based responses
+
+Features:
+- Real-time chat interface
+- Retrieval-Augmented Generation for context-aware answers
+- Modern, responsive UI design
+- Document indexing and embedding-based search
+- Support for multiple document formats
+
+Architecture:
+The application consists of three main components:
+1. Frontend: Static HTML interface with modern gradient design
+2. Backend API: FastAPI server handling chat requests
+3. RAG System: Document retrieval and embedding management
+
+How it works:
+Users input questions through the web interface. The backend processes these queries using an LLM and retrieves relevant context from indexed documents. The response is then sent back to the user with source citations.
+
+Getting Started:
+1. Ensure Python 3.8+ is installed
+2. Install dependencies: pip install -r requirements.txt
+3. Add .txt files to the data/ folder for document indexing
+4. Run the application using run.ps1 or run.bat
+5. Access the chatbot at http://localhost:8000
+
+Document Management:
+Place your .txt files in the data/ directory. The RAG system will automatically:
+- Read and parse all .txt files
+- Create embeddings for semantic search
+- Retrieve relevant context when answering questions
+- Display source information with each response

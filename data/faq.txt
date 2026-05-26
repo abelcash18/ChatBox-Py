@@ -1,0 +1,64 @@
+Frequently Asked Questions (FAQ)
+
+Q: What is the ATS Chatbot?
+A: The ATS Chatbot is an AI-powered conversational agent that uses Retrieval-Augmented Generation (RAG) to provide accurate answers based on your documents. It combines language models with document search to deliver contextual, sourced responses.
+
+Q: What does RAG (Retrieval-Augmented Generation) mean?
+A: RAG is a technique that retrieves relevant documents or text chunks and uses them as context when generating responses. This helps the AI provide more accurate, sourced information rather than relying solely on its training data.
+
+Q: How do I add documents to the chatbot?
+A: Add .txt files to the data/ folder in your project directory. The chatbot will automatically index them on the next restart.
+
+Q: What file formats are supported?
+A: Currently, the chatbot supports .txt files. For other formats, convert them to plain text first.
+
+Q: Why is the chatbot showing "No documents found"?
+A: This means there are no .txt files in the data/ folder. Add some documents and restart the application.
+
+Q: How does the relevance score work?
+A: The relevance score (0.0-1.0) indicates how well a retrieved document matches your query. Higher scores indicate better matches. A score of 0.0 means a perfect fallback response.
+
+Q: Can I use the chatbot without documents?
+A: Yes, the chatbot can still answer questions using its base language model knowledge, but without the RAG functionality for document-based answers.
+
+Q: How long does it take to index documents?
+A: Indexing time depends on document size and quantity. Typically a few minutes for hundreds of pages. You'll see a progress indication on first startup.
+
+Q: Is my data secure?
+A: The application runs locally on your machine. No data is sent to external servers unless configured. Check your LLM provider's privacy policy if using cloud-based models.
+
+Q: Can I customize the chatbot appearance?
+A: Yes, edit the CSS in index.html to modify colors, fonts, layouts, and styling to match your preferences.
+
+Q: What should I do if the chatbot is slow?
+A: Large document sets may slow down retrieval. Consider:
+- Breaking large files into smaller chunks
+- Removing irrelevant documents
+- Optimizing your documents for clarity
+- Checking your system resources
+
+Q: How accurate are the responses?
+A: Accuracy depends on:
+- Quality of your source documents
+- Relevance of retrieved context
+- The underlying language model
+- Specificity of your questions
+
+Q: Can multiple users access the chatbot simultaneously?
+A: Yes, if the server is accessible on your network. Multiple concurrent connections are supported by FastAPI.
+
+Q: How do I reset or clear the chat history?
+A: The chat history is stored in the browser. Clear it by:
+- Refreshing the page (F5)
+- Clearing browser cache
+- Opening in a private/incognito window
+
+Q: What if I have sensitive documents?
+A: Since the chatbot runs locally, sensitive documents stay on your machine. Do not expose the API publicly without authentication.
+
+Q: How can I improve response quality?
+A: Tips for better responses:
+- Use well-organized documents
+- Include relevant headings and structure
+- Ask specific, clear questions
+- Provide context in your questions when needed
